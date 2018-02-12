@@ -24,8 +24,6 @@ public class MainActivityPresenter {
 
     private View view;
 
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
-
     public interface View {
         void displayData(List<Maker> makerList);
     }
@@ -39,6 +37,8 @@ public class MainActivityPresenter {
     }
 
     public void loadData(){
+
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         RemoteDataSource remoteDataSource = new RemoteDataSource();
 
