@@ -1,21 +1,19 @@
 package com.aarondomo.vehiclemakersapi.presenter;
 
 
-import android.util.Log;
-
 import com.aarondomo.vehiclemakersapi.model.Maker;
 import com.aarondomo.vehiclemakersapi.model.Results;
 import com.aarondomo.vehiclemakersapi.remote.RemoteDataSource;
 import com.aarondomo.vehiclemakersapi.remote.VehiclesAPI;
-import com.aarondomo.vehiclemakersapi.utils.SortById;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivityPresenter {
 
@@ -40,30 +38,29 @@ public class MainActivityPresenter {
 
     public void loadData(){
 
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+
         RemoteDataSource remoteDataSource = new RemoteDataSource();
 
         VehiclesAPI service = remoteDataSource.getRemoteService();
 
-        Call<Results> resultCall = service.getResults(REQUEST_FORMAT);
+        compositeDisposable.add((Disposable) service.getResults(REQUEST_FORMAT)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(new Function<Results, List<Maker>>() {
+                    @Override
+                    public List<Maker> apply(Results results) throws Exception {
+                        return results.getMakers();
+                    }
+                })
+                .subscribe(new Consumer<List<Maker>>() {
+                    @Override
+                    public void accept(List<Maker> makers) throws Exception {
+                        view.displayData(makers);
+                    }
+                })
+        );
 
-        resultCall.enqueue(new Callback<Results>() {
-            @Override
-            public void onResponse(Call<Results> call, Response<Results> response) {
-
-                List<Maker> makerList = response.body().getMakers();
-
-                Collections.sort(makerList, new SortById());
-
-                if(makerList != null){
-                    view.displayData(makerList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Results> call, Throwable t) {
-                Log.d(TAG, ERROR_MESSAGE);
-            }
-        });
     }
 
 }
