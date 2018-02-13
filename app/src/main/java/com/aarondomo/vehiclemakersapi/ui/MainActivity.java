@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.aarondomo.vehiclemakersapi.R;
 import com.aarondomo.vehiclemakersapi.di.DaggerMainComponent;
@@ -38,6 +39,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.dettachView();
+    }
+
     private void setUpDagger(){
         DaggerMainComponent.builder()
                 .mainModule(new MainModule())
@@ -58,8 +65,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        presenter.dettachView();
+    public void showError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 }
