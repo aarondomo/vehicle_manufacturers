@@ -3,6 +3,7 @@ package com.aarondomo.vehiclemakersapi.di;
 import android.content.Context;
 
 import com.aarondomo.vehiclemakersapi.presenter.MainActivityPresenter;
+import com.aarondomo.vehiclemakersapi.remote.RemoteDataSource;
 
 import dagger.Module;
 import dagger.Provides;
@@ -21,6 +22,6 @@ public class MainModule {
 
     @Provides
     public MainActivityPresenter getPresenter(){
-        return new MainActivityPresenter();
+        return new MainActivityPresenter(new RemoteDataSource().getRemoteService());
     }
 }
